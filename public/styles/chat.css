@@ -1,37 +1,42 @@
-@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap");
 
-html, body {
-    height: 100%;
-    font-family: "Open Sans", sans-serif;
-    color: #DADADA ;
+html,
+body {
+  height: 100%;
+  font-family: "Open Sans", sans-serif;
+  color: #dadada;
+}
+
+header {
+  width: 100%;
+  background-color: rgba(31, 31, 42, 0.95);
+  height: 10%;
+  position: fixed;
+  box-shadow: 0 0 15px 0 rgba(0, 0, 0, 0.15), 0 12px 30px 0 rgba(0, 0, 0, 0.25);
+}
+
+.button2 {
+  height: 100%;
+  aspect-ratio: 1/1;
+}
+
+.logo {
+  box-sizing: border-box;
+  height: 100%;
+  object-fit: contain;
+  padding: 15px;
 }
 
 section {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 90%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
 }
 
-.background{
-    background-image: url('/img/background.jpg');
-    height: 100%;
-    width: 100%;
-    background-size: cover;
-}
-
-header{
-    background-color: #1F1F2A;
-    height: 100px;
-
-}
-.button2{
-    height:100px;
-}
-.logo{
-    box-sizing: border-box;
-    height: 100px;
-    width: 100px;
-    object-fit: contain;
-    padding: 15px;
+.background {
+  background-image: url("/img/background.jpg");
+  height: 100%;
+  width: 100%;
+  background-size: cover;
 }
