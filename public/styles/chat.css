@@ -1,0 +1,37 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
+
+html, body {
+    height: 100%;
+    font-family: "Open Sans", sans-serif;
+    color: #DADADA ;
+}
+
+section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 90%;
+}
+
+.background{
+    background-image: url('/img/background.jpg');
+    height: 100%;
+    width: 100%;
+    background-size: cover;
+}
+
+header{
+    background-color: #1F1F2A;
+    height: 100px;
+
+}
+.button2{
+    height:100px;
+}
+.logo{
+    box-sizing: border-box;
+    height: 100px;
+    width: 100px;
+    object-fit: contain;
+    padding: 15px;
+}
