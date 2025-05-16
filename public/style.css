@@ -4,7 +4,7 @@ html, body {
     height: 100%;
     margin: 0;
     font-family: "Open Sans", sans-serif;
-    background-color:#121218;
+    background-image: url("img/background.jpg");
     color: #DADADA ;
 }
 
@@ -21,16 +21,38 @@ section {
     flex-direction: column;
     /* justify-content: center; */
     align-items: center;
-    width: 80%;
-    height: 80%;
+    width: 800;
+    height: 600;
     border-radius: 15px;
     box-shadow: 0 0 10px rgb(20, 81, 44);
     padding: 20px;
     background-color: #1F1F2A;
 }
-.username{
-    padding: 0 auto;
+
+.messengerName{
+    font-size: 6em;
+    margin-top: 20px;
 }
+
+.form{
+    width: 400px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+input[type="text"] {
+    padding: 10px;
+    font-size: 16px;
+    width: 300px;
+    height: 70px;
+    border-radius: 8px;
+    box-sizing: border-box;
+    margin-top: 50%;
+}
+
 .button {
     margin-top: 20px;
     padding: 12px 30px;
@@ -44,25 +66,4 @@ section {
 
 .button:hover {
     background-color: #45a049;
-}
-.form{
-    width: 400px;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-}
-input[type="text"] {
-    padding: 10px;
-    font-size: 16px;
-    width: 300px;
-    height: 70px;
-    border-radius: 8px;
-    box-sizing: border-box;
-    margin-top: 50%;
-}
-.messengerName{
-    font-size: 6em;
-    margin-top: 20px;
 }
