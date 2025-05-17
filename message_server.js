@@ -10,9 +10,24 @@ const wss = new WebSocket.Server({ server });
 
 const chatHistory = [];
 
-// Определяем режим запуска
 const modeArg = process.argv.find(arg => arg.startsWith('--mode='));
 const mode = modeArg ? modeArg.split('=')[1] : 'server';
+
+const enableFileLogging = mode === 'server';
+const LOG_FILE = path.join(__dirname, 'server.log');
+
+// Функция логирования
+function logToFile(message) {
+  if (!enableFileLogging) return;
+
+  const timestamp = new Date().toISOString();
+  const logMessage = `[${timestamp}] ${message}\n`;
+  fs.appendFile(LOG_FILE, logMessage, (err) => {
+    if (err) {
+      console.error('Ошибка при записи в лог-файл:', err);
+    }
+  });
+}
 
 if (mode === 'local') {
   app.use(express.static(path.join(__dirname, 'public')));
@@ -20,6 +35,8 @@ if (mode === 'local') {
 
 wss.on('connection', (ws) => {
   console.log('Пользователь подключился');
+  logToFile('Пользователь подключился');
+
   ws.send(JSON.stringify({ type: 'chat_history', data: chatHistory }));
 
   ws.on('message', (msg) => {
@@ -31,6 +48,9 @@ wss.on('connection', (ws) => {
         timestamp: new Date(),
       };
       chatHistory.push(chatMessage);
+
+      const logMsg = `${chatMessage.name}: ${chatMessage.text}`;
+      logToFile(`Новое сообщение: ${logMsg}`);
 
       wss.clients.forEach(client => {
         if (client.readyState === WebSocket.OPEN) {
@@ -44,7 +64,8 @@ wss.on('connection', (ws) => {
 if (mode === 'local') {
   const PORT = 3000;
   server.listen(PORT, () => {
-    console.log(`Сервер запущен в режиме 'local' -  http://localhost:${PORT}`);
+    const msg = `Сервер запущен в режиме 'local' - http://localhost:${PORT}`;
+    console.log(msg);
   });
 } else {
   const SOCKET_PATH = '/tmp/nodeapp.sock';
@@ -53,6 +74,8 @@ if (mode === 'local') {
   }
   server.listen(SOCKET_PATH, () => {
     fs.chmodSync(SOCKET_PATH, 0o766);
-    console.log(`Сервер запущен в режиме 'server' на UNIX socket: ${SOCKET_PATH}`);
+    const msg = `Сервер запущен в режиме 'server' на UNIX socket: ${SOCKET_PATH}`;
+    console.log(msg);
+    logToFile(msg);
   });
 }
