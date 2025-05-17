@@ -1,15 +1,17 @@
 const express = require('express');
 const WebSocket = require('ws');
 const http = require('http');
+const fs = require('fs');
 const path = require('path');
 
 const app = express();
+
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
 const chatHistory = [];
 
-app.use(express.static(path.join(__dirname, 'public'))); // отдача статики
+app.use(express.static(path.join(__dirname, 'public')));
 
 wss.on('connection', (ws) => {
   console.log('Пользователь подключился');
@@ -21,7 +23,7 @@ wss.on('connection', (ws) => {
       const chatMessage = { name: message.name, text: message.text, timestamp: new Date() };
       chatHistory.push(chatMessage);
 
-      wss.clients.forEach((client) => {
+      wss.clients.forEach(client => {
         if (client.readyState === WebSocket.OPEN) {
           client.send(JSON.stringify({ type: 'chat_message', data: chatMessage }));
         }
@@ -30,4 +32,15 @@ wss.on('connection', (ws) => {
   });
 });
 
-server.listen(3000, () => console.log('Сервер работает на http://localhost:3000'));
+const SOCKET_PATH = '/tmp/nodeapp.sock';
+
+// Удаляем сокет, если он существует (чтобы не было ошибки bind)
+if (fs.existsSync(SOCKET_PATH)) {
+  fs.unlinkSync(SOCKET_PATH);
+}
+
+server.listen(SOCKET_PATH, () => {
+  // Меняем права, чтобы Nginx мог к нему обращаться
+  fs.chmodSync(SOCKET_PATH, 0o766);
+  console.log(`Сервер запущен на UNIX socket: ${SOCKET_PATH}`);
+});
