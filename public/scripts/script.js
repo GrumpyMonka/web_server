@@ -1,4 +1,4 @@
-const socket = new WebSocket('wss://77.238.249.180/socket')
+const socket = new WebSocket('wss://v157394.hosted-by-vdsina.com/socket')
 socket.addEventListener('message', (event) => {
   const message = JSON.parse(event.data)
   console.log(message);
