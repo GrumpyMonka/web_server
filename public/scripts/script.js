@@ -6,12 +6,17 @@ socket.addEventListener('message', (event) => {
 
   }
   if (message.type === 'chat_message') {
+    addMessage(message.data);
   }
 })
+
+let userName = 'noName';
 
 const button = document.querySelector(".button");
 if (button) {
   button.addEventListener("click", () => {
+    userName = document.getElementById('username').value;
+    localStorage.setItem("username", userName);
     window.location.href = "/pages/chat.html";
   });
 }
@@ -31,8 +36,17 @@ if (sendButton) {
     const inputMessage = document.querySelector('.inputMessage');
     let val = inputMessage.value;
     if (val) {
-      socket.send(JSON.stringify({ type: 'new_message', name: 'Rasul', text: val }))
+      socket.send(JSON.stringify({ type: 'new_message', name: localStorage.getItem("username"), text: val }))
       inputMessage.value = '';
     }
   });
+
+}
+
+function addMessage(message) {
+  const chat = document.querySelector('.chat');
+  let div = document.createElement('div');
+  div.className = 'message';
+  div.innerHTML = `<b style="color:black">${message.name}</b>:<br /> ${message.text}`;
+  chat.appendChild(div);
 }
