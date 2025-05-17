@@ -5,13 +5,18 @@ const fs = require('fs');
 const path = require('path');
 
 const app = express();
-
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
 const chatHistory = [];
 
-app.use(express.static(path.join(__dirname, 'public')));
+// Определяем режим запуска
+const modeArg = process.argv.find(arg => arg.startsWith('--mode='));
+const mode = modeArg ? modeArg.split('=')[1] : 'server';
+
+if (mode === 'local') {
+  app.use(express.static(path.join(__dirname, 'public')));
+}
 
 wss.on('connection', (ws) => {
   console.log('Пользователь подключился');
@@ -20,8 +25,11 @@ wss.on('connection', (ws) => {
   ws.on('message', (msg) => {
     const message = JSON.parse(msg);
     if (message.type === 'new_message') {
-      console.log(message);
-      const chatMessage = { name: message.name, text: message.text, timestamp: new Date() };
+      const chatMessage = {
+        name: message.name,
+        text: message.text,
+        timestamp: new Date(),
+      };
       chatHistory.push(chatMessage);
 
       wss.clients.forEach(client => {
@@ -33,15 +41,18 @@ wss.on('connection', (ws) => {
   });
 });
 
-const SOCKET_PATH = '/tmp/nodeapp.sock';
-
-// Удаляем сокет, если он существует (чтобы не было ошибки bind)
-if (fs.existsSync(SOCKET_PATH)) {
-  fs.unlinkSync(SOCKET_PATH);
+if (mode === 'local') {
+  const PORT = 3000;
+  server.listen(PORT, () => {
+    console.log(`Сервер запущен в режиме 'local' на порту ${PORT}`);
+  });
+} else {
+  const SOCKET_PATH = '/tmp/nodeapp.sock';
+  if (fs.existsSync(SOCKET_PATH)) {
+    fs.unlinkSync(SOCKET_PATH);
+  }
+  server.listen(SOCKET_PATH, () => {
+    fs.chmodSync(SOCKET_PATH, 0o766);
+    console.log(`Сервер запущен в режиме 'server' на UNIX socket: ${SOCKET_PATH}`);
+  });
 }
-
-server.listen(SOCKET_PATH, () => {
-  // Меняем права, чтобы Nginx мог к нему обращаться
-  fs.chmodSync(SOCKET_PATH, 0o766);
-  console.log(`Сервер запущен на UNIX socket: ${SOCKET_PATH}`);
-});

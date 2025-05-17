@@ -2,6 +2,7 @@
 
 set -e
 
+MODE="$1"
 CONFIG_NAME="server.conf"
 PM2_PROCESS_NAME="chat-server"
 SERVER_SCRIPT="message_server.js"
@@ -11,6 +12,12 @@ SRC_CONF="$SCRIPT_DIR/$CONFIG_NAME"
 DEST_CONF="/etc/nginx/sites-available/$CONFIG_NAME"
 LINK_CONF="/etc/nginx/sites-enabled/$CONFIG_NAME"
 SERVER_PATH="$SCRIPT_DIR/$SERVER_SCRIPT"
+
+if [ "$MODE" == "local" ]; then
+    echo "Запуск в режиме local..."
+    node "$SERVER_PATH" --mode=local
+    exit 0
+fi
 
 echo "Копируем конфиг nginx..."
 sudo cp "$SRC_CONF" "$DEST_CONF"
