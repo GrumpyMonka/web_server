@@ -44,7 +44,7 @@ wss.on('connection', (ws) => {
 if (mode === 'local') {
   const PORT = 3000;
   server.listen(PORT, () => {
-    console.log(`Сервер запущен в режиме 'local' на порту ${PORT}`);
+    console.log(`Сервер запущен в режиме 'local' -  http://localhost:${PORT}`);
   });
 } else {
   const SOCKET_PATH = '/tmp/nodeapp.sock';
