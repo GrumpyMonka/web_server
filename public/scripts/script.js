@@ -2,7 +2,6 @@
 const socket = new WebSocket('wss://rasulhub.fun/ws/')
 socket.addEventListener('message', (event) => {
   const message = JSON.parse(event.data)
-  console.log(message);
   if (message.type === 'new_message') {
     addMessage(message.data);
   }
