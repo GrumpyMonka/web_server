@@ -40,6 +40,7 @@ wss.on('connection', (ws) => {
   ws.send(JSON.stringify({ type: 'chat_history', data: chatHistory }));
 
   ws.on('message', (msg) => {
+    console.log(`New message ${msg}`);
     const message = JSON.parse(msg);
     if (message.type === 'new_message') {
       const chatMessage = {
