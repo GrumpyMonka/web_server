@@ -4,79 +4,85 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
-const app = express();
-const server = http.createServer(app);
-const wss = new WebSocket.Server({ server });
+const expressApp = express();
+const httpServer = http.createServer(expressApp);
+const webSocketServer = new WebSocket.Server({ server: httpServer });
 
-const chatHistory = [];
+const modeArgument = process.argv.find(arg => arg.startsWith('--mode='));
+const applicationMode = modeArgument ? modeArgument.split('=')[1] : 'server';
 
-const modeArg = process.argv.find(arg => arg.startsWith('--mode='));
-const mode = modeArg ? modeArg.split('=')[1] : 'server';
-
-const enableFileLogging = mode === 'server';
-const LOG_FILE = path.join(__dirname, 'server.log');
+const isFileLoggingEnabled = applicationMode === 'server';
+const logFilePath = path.join(__dirname, 'server.log');
 
 // Функция логирования
-function logToFile(message) {
-  if (!enableFileLogging) return;
-
+function logToConsoleAndFile(message) {
   const timestamp = new Date().toISOString();
-  const logMessage = `[${timestamp}] ${message}\n`;
-  fs.appendFile(LOG_FILE, logMessage, (err) => {
-    if (err) {
-      console.error('Ошибка при записи в лог-файл:', err);
-    }
-  });
+  const formattedLogMessage = `[${timestamp}] ${message}`;
+
+  console.log(formattedLogMessage);
+
+  if (isFileLoggingEnabled) {
+    fs.appendFile(logFilePath, formattedLogMessage + '\n', (error) => {
+      if (error) {
+        console.error(`[${timestamp}] Ошибка при записи в лог-файл:`, error);
+      }
+    });
+  }
 }
 
-if (mode === 'local') {
-  app.use(express.static(path.join(__dirname, 'public')));
+// Статика в режиме local
+if (applicationMode === 'local') {
+  expressApp.use(express.static(path.join(__dirname, 'public')));
 }
 
-wss.on('connection', (ws) => {
-  console.log('Пользователь подключился');
-  logToFile('Пользователь подключился');
+// Обработка WebSocket-соединений
+webSocketServer.on('connection', (webSocketClient) => {
+  logToConsoleAndFile('Пользователь подключился');
 
-  ws.send(JSON.stringify({ type: 'chat_history', data: chatHistory }));
+  webSocketClient.on('message', (incomingMessage) => {
+    try {
+      const parsedMessage = JSON.parse(incomingMessage);
 
-  ws.on('message', (msg) => {
-    console.log(`New message ${msg}`);
-    const message = JSON.parse(msg);
-    if (message.type === 'new_message') {
-      const chatMessage = {
-        name: message.name,
-        text: message.text,
-        timestamp: new Date(),
-      };
-      chatHistory.push(chatMessage);
+      if (parsedMessage.type === 'new_message') {
+        const senderName = parsedMessage.data?.name || 'Неизвестный пользователь';
+        const logContent = parsedMessage.data?.type === 'text'
+          ? `${senderName}: ${parsedMessage.data.text}`
+          : `${senderName} отправил(а) изображение`;
 
-      const logMsg = `${chatMessage.name}: ${chatMessage.text}`;
-      logToFile(`Новое сообщение: ${logMsg}`);
+        logToConsoleAndFile(logContent);
 
-      wss.clients.forEach(client => {
-        if (client.readyState === WebSocket.OPEN) {
-          client.send(JSON.stringify({ type: 'chat_message', data: chatMessage }));
-        }
-      });
+        // Отправляем ВСЕМ клиентам, включая отправителя
+        broadcastToAllClients(parsedMessage);
+      }
+    } catch (error) {
+      logToConsoleAndFile(`Ошибка при обработке сообщения: ${error.message}`);
     }
   });
 });
 
-if (mode === 'local') {
-  const PORT = 3000;
-  server.listen(PORT, () => {
-    const msg = `Сервер запущен в режиме 'local' - http://localhost:${PORT}`;
-    console.log(msg);
+// Рассылка всем клиентам
+function broadcastToAllClients(messageObject) {
+  const serializedMessage = JSON.stringify(messageObject);
+  webSocketServer.clients.forEach((client) => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(serializedMessage);
+    }
+  });
+}
+
+// Запуск сервера
+if (applicationMode === 'local') {
+  const localPort = 3000;
+  httpServer.listen(localPort, () => {
+    logToConsoleAndFile(`Сервер запущен в режиме 'local' - http://localhost:${localPort}`);
   });
 } else {
-  const SOCKET_PATH = '/tmp/nodeapp.sock';
-  if (fs.existsSync(SOCKET_PATH)) {
-    fs.unlinkSync(SOCKET_PATH);
+  const unixSocketPath = '/tmp/nodeapp.sock';
+  if (fs.existsSync(unixSocketPath)) {
+    fs.unlinkSync(unixSocketPath);
   }
-  server.listen(SOCKET_PATH, () => {
-    fs.chmodSync(SOCKET_PATH, 0o766);
-    const msg = `Сервер запущен в режиме 'server' на UNIX socket: ${SOCKET_PATH}`;
-    console.log(msg);
-    logToFile(msg);
+  httpServer.listen(unixSocketPath, () => {
+    fs.chmodSync(unixSocketPath, 0o766);
+    logToConsoleAndFile(`Сервер запущен в режиме 'server' на UNIX socket: ${unixSocketPath}`);
   });
 }
