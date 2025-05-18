@@ -5,6 +5,7 @@ body {
   height: 100%;
   font-family: "Open Sans", sans-serif;
   color: #dadada;
+
 }
 
 header {
@@ -37,25 +38,6 @@ section {
   background: url("/img/background.jpg") no-repeat center/cover;
 }
 
-.mainbox {
-  position: relative;
-  display: flex;
-  width: 70%;
-  height: 70%;
-  align-items: center;
-  justify-content: center;
-  z-index: 1;
-}
-.inputArea {
-  position: absolute;
-  top: 100%;
-  left: 0px;
-  display: flex;
-  width: 90%;
-  height: 80px;
-  border-radius: 15px;
-  box-sizing: border-box;
-}
 .skin {
   box-sizing: border-box;
   background: rgba(255, 255, 255, 0.05);
@@ -66,20 +48,49 @@ section {
   color: rgb(255, 0, 0);
 }
 
-.sendButton {
-  background: rgba(0, 0, 0, 0.8);
-  box-sizing: border-box;
+.mainbox {
+  position: relative;
+  display: flex;
+  width: 70%;
+  height: 70%;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+
+}
+.inputArea {
+  position: absolute;
+  top: 100%;
+  left: 0px;
+  display: flex;
+  width: 81%;
+  height: 80px;
+  border-radius: 15px;
+}
+
+.photo{
+  position: absolute;
   display: flex;
   align-items: center;
   justify-content: center;
-  position: absolute;
-  height: 80px;
+  left: 100%;
   width: 10%;
-  top: 100%;
-  left: 90%;
+  height: 80px;
+  border-radius: 0px;
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.sendButton {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 80px;
+  width: 13.5%;
+  left: 110%;
   font-size: 30px;
-  color: red;
   border-radius: 0px 15px 15px 0px;
+  background: rgba(0, 0, 0, 0.8);
 }
 
 .inputMessage {
@@ -93,14 +104,17 @@ section {
 .inputMessage::placeholder {
   color: red;
   font-size: 50px;
+   max-width: 90%;
+  min-width: 90%;
 }
 
 .chat{
   width: 100%;
   height: 100%;
   display: flex;
-  justify-content: flex-end;
   flex-direction: column;
+  overflow-y: scroll;
+    scrollbar-width: none;
 }
 .chat div{
   margin: 20px ;
@@ -110,3 +124,4 @@ section {
   font-size: 30px;
   color: white;
 }
+
