@@ -43,7 +43,11 @@ webSocketServer.on('connection', (webSocketClient) => {
   try {
     const parsedMessage = JSON.parse(incomingMessage);
 
-    if (parsedMessage.type === 'new_message') {
+    if (parsedMessage.type === 'ping')
+    {
+      
+    }
+    else if (parsedMessage.type === 'new_message') {
       const senderName = parsedMessage.data?.name || 'Неизвестный пользователь';
 
       // Определяем, пришло ли изображение
