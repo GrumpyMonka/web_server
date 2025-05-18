@@ -58,6 +58,9 @@ webSocketServer.on('connection', (webSocketClient) => {
       // Отправляем всем клиентам, включая отправителя
       broadcastToAllClients(parsedMessage);
     }
+    else{
+      logToConsoleAndFile("Неверный type сообщения");
+    }
   } catch (error) {
     logToConsoleAndFile(`Ошибка при обработке сообщения: ${error.message}`);
   }
