@@ -40,24 +40,29 @@ webSocketServer.on('connection', (webSocketClient) => {
   logToConsoleAndFile('Пользователь подключился');
 
   webSocketClient.on('message', (incomingMessage) => {
-    try {
-      const parsedMessage = JSON.parse(incomingMessage);
+  try {
+    const parsedMessage = JSON.parse(incomingMessage);
 
-      if (parsedMessage.type === 'new_message') {
-        const senderName = parsedMessage.data?.name || 'Неизвестный пользователь';
-        const logContent = parsedMessage.data?.type === 'text'
-          ? `${senderName}: ${parsedMessage.data.text}`
-          : `${senderName} отправил(а) изображение`;
+    if (parsedMessage.type === 'new_message') {
+      const senderName = parsedMessage.data?.name || 'Неизвестный пользователь';
 
-        logToConsoleAndFile(logContent);
+      // Определяем, пришло ли изображение
+      const isImage = parsedMessage.data?.imageData && parsedMessage.data.imageData.trim() !== '';
 
-        // Отправляем ВСЕМ клиентам, включая отправителя
-        broadcastToAllClients(parsedMessage);
-      }
-    } catch (error) {
-      logToConsoleAndFile(`Ошибка при обработке сообщения: ${error.message}`);
+      const logContent = isImage
+        ? `${senderName} отправил(а) изображение`
+        : `${senderName}: ${parsedMessage.data?.text || ''}`;
+
+      logToConsoleAndFile(logContent);
+
+      // Отправляем всем клиентам, включая отправителя
+      broadcastToAllClients(parsedMessage);
     }
-  });
+  } catch (error) {
+    logToConsoleAndFile(`Ошибка при обработке сообщения: ${error.message}`);
+  }
+});
+
 });
 
 // Рассылка всем клиентам
